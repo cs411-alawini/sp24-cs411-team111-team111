@@ -8,8 +8,8 @@
 | TeamName    |         Team111        |
 | Captain     |       Andrew Tran      |
 | Captain     |  altran2@illinois.edu  |
-| Member1     |                        |
-| Member1     |                        |
+| Member1     |     Srijan Shukla      |
+| Member1     |  srijans2@illinois.edu |
 | Member2     |                        |
 | Member2     |                        |
 | Member3     |                        |
