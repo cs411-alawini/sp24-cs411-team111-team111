@@ -10,8 +10,8 @@
 | Captain     |  altran2@illinois.edu  |
 | Member1     |     Srijan Shukla      |
 | Member1     |  srijans2@illinois.edu |
-| Member2     |                        |
-| Member2     |                        |
+| Member2     |     Joe Morrissey      |
+| Member2     |    jrm15@illinois.edu  |
 | Member3     |                        |
 | Member3     |                        |
 
