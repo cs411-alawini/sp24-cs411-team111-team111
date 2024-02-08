@@ -25,4 +25,4 @@
 
 ## Project Summary
 
-This is a summary of the project!
+Our project is focused on developing an apartment search application aimed at assisting tenants in finding suitable rental properties in Chicago based on price and crime rates in the area. The application will leverage real-time data and analytics to provide users with accurate and up-to-date information on rental prices and neighborhood crime statistics. Users will be able to set preferences for their budget constraints and safety concerns, allowing them to filter and prioritize available apartments accordingly. The application seeks to streamline the apartment search process, enabling tenants to make informed decisions that align with their financial and safety priorities. Ultimately, the goal is to provide a user-friendly platform that enhances the efficiency and effectiveness of the apartment hunting experience for tenants in Chicago.
