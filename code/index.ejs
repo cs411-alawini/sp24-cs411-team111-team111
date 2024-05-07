@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"> 
+  <link rel="stylesheet" type="text/css" href="/stylesheets/style.css">
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</head>
+
+
+<body>
+  <div class="container">
+    <div class="header-container">
+      <h1 class="logo">SmartApartments</h1>
+      <button id="userPreferencesBtn">User Preferences</button>
+      <form class="search-form" id="searchForm">
+        <input type="text" id="maxBudget" name="maxBudget" placeholder="Enter max value for your budget">
+        <button type="submit">Search</button>
+      </form>
+    </div>
+    <div id="prefersTable" style="display: none;">
+      <h2>User Preferences</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Interest</th>
+          </tr>
+        </thead>
+        <tbody id="prefersTableBody">
+          <!-- Table rows will be dynamically added here -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#userPreferencesBtn').click(function() {
+        // Toggle display of the Prefers table
+        $('#prefersTable').toggle();
+
+        // Fetch and display Prefers table data if visible
+        if ($('#prefersTable').is(':visible')) {
+          // AJAX request to fetch Prefers data
+          $.ajax({
+            url: '/api/prefers', // Update URL with your backend endpoint
+            type: 'GET',
+            success: function(data) {
+              // Clear previous rows
+              $('#prefersTableBody').empty();
+
+              // Append new rows with data
+                           data.forEach(function(row) {
+                // Append row with modify and delete buttons
+                $('#prefersTableBody').append(`
+                  <tr>
+                    <td>${row.ID}</td>
+                    <td>${row.Interest}</td>
+                    <td>
+                      <button class="btn btn-warning btn-sm modifyBtn" data-interestid="${row.ID}">Modify</button>
+                      <button class="btn btn-danger btn-sm removeBtn" data-interestid="${row.ID}">Remove</button>
+                    </td>
+                  </tr>
+                `);
+              });
+            },
+            error: function(xhr, status, error) {
+              // Handle error
+              console.error(error);
+            }
+          });
+        }
+      });
+
+      // Function to handle modify button click
+      $(document).on('click', '.modifyBtn', function() {
+        // var interestId = $(this).data('row.ID');
+        var interestId = $(this).data('interestid');
+	var oldHood = $(this).closest('tr').find('td:eq(1)').text().trim();
+	console.log(oldHood);
+	console.log("UPDATE ID: ", interestId);
+	var newInterest = prompt('Enter the new interest:');
+        console.log("Interest: ", newInterest);
+	if (newInterest !== null) {
+          // AJAX request to modify interest
+          $.ajax({
+            url: '/api/prefers/modify/' + interestId, // Update URL with your backend modify endpoint
+            type: 'POST',
+            data: {
+              newInterest: newInterest,
+ 	      oldHood: oldHood 
+            },
+            success: function(response) {
+              alert('Interest modified successfully for ID: ' + interestId);
+              // Reload table data after modification
+              $('#showPrefersTableBtn').click(); // Reload table data
+            },
+            error: function(xhr, status, error) {
+              // Handle error
+              console.error(error);
+            }
+          });
+        }
+      });
+
+      // Function to handle remove button click
+      $(document).on('click', '.removeBtn', function() {
+        // var interestId = $(this).closest('.prefersTableBody').find('.interest-id').text();
+	var interestId = $(this).data('interestid');
+	// var interestId = $(this).data('ID');
+        console.log("DELETE ID: ", interestId);
+	if (confirm('Are you sure you want to delete interest for ID: ' + interestId + '?')) {
+          // AJAX request to delete interest
+          $.ajax({
+            url: '/api/prefers/delete/' + interestId, // Update URL with your backend delete endpoint
+            type: 'DELETE',
+            success: function(response) {
+              alert('Interest deleted successfully for ID: ' + interestId);
+              // Reload table data after deletion
+              $('#showPrefersTableBtn').click(); // Reload table data
+            },
+            error: function(xhr, status, error) {
+              // Handle error
+              console.error(error);
+            }
+          });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+    <br>
+	
+    <!-- Container for neighborhood cards -->
+    <div id="neighborhoodContainer" class="card-container">
+      <!-- Individual neighborhood cards will be dynamically added here -->
+    </div>
+  </div>
+
+
+<!-- Modal -->
+<div id="crimeDataModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2>Recent Crimes</h2>
+    <table id="crimeEventsTable">
+      <thead>
+        <tr>
+          <th>Block</th>
+          <th>Primary Type</th>
+          <th>Arrested</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Crime data rows will be dynamically added here -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Apartment Data Modal -->
+<div id="apartmentDataModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Apartment Data</h2>
+        <!-- Apartment stats -->
+        <div class="apartment-stats">
+    <div class="stat-header">Average Cost: <span class="stat-value" id="averageCost"></span></div>
+    <div class="stat-header">Average Rating: <span class="stat-value" id="averageRating"></span></div>
+    <div class="stat-header">Female Interest %: <span class="stat-value" id="femaleInterestPercent"></span></div>
+    <div class="stat-header">Male Interest %: <span class="stat-value" id="maleInterestPercent"></span></div>
+    <div class="stat-header">Average Age: <span class="stat-value" id="averageAge"></span></div>
+    <div class="stat-header">Arrest %: <span class="stat-value" id="arrestPercent"></span></div>
+    <div class="stat-header">Number of Crimes: <span class="stat-value" id="numCrimes"></span></div>
+</div>
+
+	<!-- Container for apartment data -->
+        <div id="apartmentDataContainer"></div>
+    </div>
+</div>
+
+
+
+  <script>
+    $(document).ready(function() {
+      // Submit form using AJAX
+      $('#searchForm').submit(function(event) {
+        event.preventDefault(); // Prevent default form submission
+
+        // Get max budget value from form
+        var maxBudget = $('#maxBudget').val();
+
+        // AJAX request to fetch neighborhoods based on max budget
+        $.ajax({
+          type: 'GET',
+          url: '/api/Neighborhoods', // Update URL with your backend endpoint
+          data: { maxBudget: maxBudget },
+          success: function(data) {
+            // Clear previous results
+            $('#neighborhoodContainer').empty();
+
+            // Iterate through returned data and append to container
+            data.forEach(function(Neighborhoods) {
+              // Append neighborhood card
+              $('#neighborhoodContainer').append(`
+                <div class="card">
+                  <div class="card-body">
+                    <h5 class="card-title">${Neighborhoods.NeighborhoodName}</h5>
+                    <p class="card-text">Average Rent: ${Neighborhoods.AverageRent}</p>
+                    <button class="show-crime-data-btn">Show Crime Data</button>
+		    <button class="show-apartments-btn">Show Apartments</button>
+		    <button class="add-preference-btn">Add Preference</button>
+		  </div>
+                </div>
+              `);
+            });
+          },
+          error: function(xhr, status, error) {
+            // Handle error
+            console.error(error);
+          }
+        });
+	
+	// Event delegation for crime data button
+  	$('#neighborhoodContainer').on('click', '.show-crime-data-btn', function() {
+    		// Handle click event for crime data button
+   		var neighborhoodName = $(this).closest('.card-body').find('.card-title').text();
+  		// Update the modal content with the selected neighborhood name
+    		$('#crimeDataModal .modal-content h2').text('Crime Data for ' + neighborhoodName);
+
+    		// Show the modal
+    		$('#crimeDataModal').css('display', 'block');
+		
+		console.log("Client neighborhood: ", neighborhoodName);
+		$.ajax({
+  			type: 'GET',
+  			url: '/api/crime-events', // Update the URL with your backend endpoint
+			data: {neighborhoodName: neighborhoodName},
+			success: function(data) {
+    			// Process the returned data
+  				// Select the table body element where we'll add crime data rows
+  				var crimeEventsTableBody = $('#crimeDataModal #crimeEventsTable tbody');
+  				crimeEventsTableBody.empty(); // Clear previous data
+
+  				// Add crime data rows to the table
+  				data.forEach(function(crimeEvent) {
+    					var row = $('<tr>').append(
+      					$('<td>').text(crimeEvent.Block),
+      					$('<td>').text(crimeEvent.PrimaryType),
+      					$('<td>').text(crimeEvent.Arrested ? 'Yes' : 'No')
+    					);
+    					crimeEventsTableBody.append(row);
+  				});
+
+  				// Show the modal
+  				$('#crimeDataModal').css('display', 'block');
+
+			},
+  			error: function(xhr, status, error) {
+    			// Handle error
+    			console.error('Failed to fetch crime events:', error);
+    			alert('Failed to fetch crime events.');
+  			}
+		});
+	});		
+
+
+	// Event listener for closing the modal
+  	$('.close').click(function() {
+    		$('#crimeDataModal').css('display', 'none');
+  	});
+
+	// Close the modal when clicking outside of it
+  	$(window).click(function(event) {
+    		if (event.target == $('#crimeDataModal')[0]) {
+      			$('#crimeDataModal').css('display', 'none');
+    		}
+  	});
+
+
+
+	// Event delegation for apartment data button
+	$('#neighborhoodContainer').on('click', '.show-apartments-btn', function() {
+    		// Handle click event for apartment data button
+    		var neighborhoodName = $(this).closest('.card-body').find('.card-title').text();
+    
+    		// Update the modal content with the selected neighborhood name
+    		$('#apartmentDataModal .modal-content h2').text('Apartment Data for ' + neighborhoodName);
+
+    		// Show the modal
+    		$('#apartmentDataModal').css('display', 'block');
+    
+    		console.log("Client neighborhood: ", neighborhoodName);
+
+		<!-- Apartment Header stats -->
+
+		// AJAX request to fetch apartment data headers
+		$.ajax({
+    type: 'GET',
+    url: '/api/apartment-data-headers',
+    data: { neighborhoodName: neighborhoodName },
+    success: function(data) {
+        // Populate the header with the fetched data
+        $('#apartmentDataModal .modal-content .header').empty(); // Clear previous headers
+
+        // Iterate over the JSON object and populate the header
+
+	    console.log(data[0].AverageCost);
+	$('#averageCost').text(data[0].AverageCost);
+        $('#averageRating').text(data[0].AverageRating);
+        $('#femaleInterestPercent').text(data[0].female_interest_percent + '%');
+        $('#maleInterestPercent').text(data[0].male_interest_percent + '%');
+        $('#averageAge').text(data[0].average_age);
+        $('#arrestPercent').text(data[0].arrest_percent + '%');
+        $('#numCrimes').text(data[0].num_crimes);
+
+	    /*
+	$('.apartment-stats .stat-value').eq(0).text('Average Cost: $' + data.AverageCost.toFixed(2));
+        $('.apartment-stats .stat-value').eq(1).text('Average Rating: ' + data.AverageRating.toFixed(2));
+        $('.apartment-stats .stat-value').eq(2).text('Female Interest %: ' + data.FemaleInterestPercent.toFixed(2) + '%');
+        $('.apartment-stats .stat-value').eq(3).text('Male Interest %: ' + data.MaleInterestPercent.toFixed(2) + '%');
+        $('.apartment-stats .stat-value').eq(4).text('Average Age: ' + data.AverageAge.toFixed(2));
+        $('.apartment-stats .stat-value').eq(5).text('Arrest %: ' + data.ArrestPercent.toFixed(2) + '%');
+        $('.apartment-stats .stat-value').eq(6).text('Number of Crimes: ' + data.NumCrimes);
+
+		*/
+
+	/* 
+        for (const key in data) {
+            if (data.hasOwnProperty(key)) {
+		
+
+                const headerElement = $('<div>').addClass('header').text(`${key}: ${data[key]}`);
+                $('#apartmentDataModal .modal-content').append(headerElement);
+            }
+	}  */
+    },
+    error: function(xhr, status, error) {
+        // Handle error
+        console.error('Failed to fetch apartment data headers:', error);
+        alert('Failed to fetch apartment data headers.');
+    }
+});
+
+		<!-- End Apartment Header stats -->
+
+
+		<!-- GET Apartment Cards -->
+
+		$.ajax({
+    type: 'GET',
+    url: '/api/apartment-data',
+    data: { neighborhoodName: neighborhoodName },
+    success: function(apartments) {
+        // Iterate through the fetched apartment data and populate the container
+        apartments.forEach(function(apartment) {
+            var apartmentCard = $('<div>').addClass('apartment-card');
+            apartmentCard.append(
+                $('<div>').text('Apartment ID: ' + apartment.ApartmentId),
+                $('<div>').text('Renter Company: ' + apartment.RenterCompanyName),
+                $('<div>').text('Rating: ' + apartment.Rating),
+                $('<div>').text('Cost: ' + apartment.Cost)
+            );
+            $('#apartmentDataModal .modal-content #apartmentDataContainer').append(apartmentCard);
+        });
+    },
+    error: function(xhr, status, error) {
+        console.error('Failed to fetch apartment data:', error);
+        alert('Failed to fetch apartment data.');
+    }
+});
+		<!-- END Apartment Cards -->
+
+
+	});
+
+	// Event listener for closing the modal
+	$('.close').click(function() {
+    		$('#apartmentDataModal').css('display', 'none');
+	});
+
+	// Close the modal when clicking outside of it
+	$(window).click(function(event) {
+    		if (event.target == $('#apartmentDataModal')[0]) {
+        		$('#apartmentDataModal').css('display', 'none');
+    		}
+	});
+
+
+
+    $(document).on('click', '.add-preference-btn', function() {
+    // Get the neighborhood name from the card title
+    var neighborhoodName = $(this).closest('.card-body').find('.card-title').text().trim();
+
+	console.log(neighborhoodName);
+
+	    var data = {
+        neighborhoodName: neighborhoodName
+    };
+
+    // Send a PUT request to the server
+    $.ajax({
+        url: '/api/add-preference', // Update the URL with your backend endpoint
+        type: 'PUT',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+	success: function(response) {
+            // Handle success response
+            console.log('Preference added successfully:', response);
+	    alert('Interest added successfully for ' + neighborhoodName);
+            // Optionally, you can perform any UI updates here
+        },
+        error: function(xhr, status, error) {
+            // Handle error response
+            console.error('Failed to add preference:', error);
+            // Optionally, you can display an error message to the user
+        }
+    });
+});
+
+
+      });
+    });
+  </script>
+</body>
+</html>
+
+
+
+
+
+<!--
+    Modal for Viewing Attendance
+    <div class="modal fade" id="viewAttendanceModal" tabindex="-1" role="dialog" aria-labelledby="viewAttendanceModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="viewAttendanceModalLabel">Neighborhoods where there have been fewer than 10 arrests</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">Neighborhood</th>
+                </tr>
+              </thead>
+              <tbody id="attendanceBody">
+                 Attendance rows will be inserted here 
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  -->
+
+<script src="/javascripts/script.js"></script>
+
+<script>
+
+  $(document).ready(function() {
+    $('#loadNeighborhoodsBtn').click(function() {
+      $.ajax({
+        url: '/api/neighborhoods',
+        method: 'GET',
+        success: function(data) {
+          var rows = '';
+          data.forEach(function(neighborhood) {
+            rows += `<tr>
+                       <td>${neighborhood.NeighborhoodName}</td>
+                     </tr>`;
+          });
+          $('#neighborhoodsBody').html(rows);
+        },
+        error: function() {
+          alert('Failed to load neighborhood data; make sure you are inputting a valid neighborhood name from Chicago?');
+        }
+      });
+    });
+  });
